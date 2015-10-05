@@ -1,22 +1,33 @@
-# Boilerplate for FE components
+# JS-Stan.
 
-## package.json
-Fields that should be populated:
-- name
-- description
-- repository -> url
-- keywords
-- authors
-- bugs -> url
-- homepage
+## Own js framework.
+Based on Mediator & module approaches with loose coupling.
+
+*Framework structure:*
+Base Library -> Application Core -> Sandbox (Mediator) -> Modules
 
 ### scripts
-gulp dev / webserver / release / watch
-### browserify
-In *dev* and *build* scripts browserify is used. The main entry file and dist file can be changed if needed. For the *build* task *browserify-shim* transformer and *browserify-derequire* plugin are used.
-
-### tests
-Tests are run with the karma. Basic karma.conf.json is added and files are transformed with browserify.
-
-### browserify-shim
-Browserify-shim is used to transfrom *jquery* and *undescore* require statements to the window.$ and window._ in the build file. For the development purposes they are added as devDependencies and are resolved by browserify automatically.
+gulp:
+ - *clean* - Remove everything from dist folder
+ - *dev* - Runs sequence:
+    - clean
+    - browserify
+    - scripts
+    - sprites
+    - stylesheets
+    - assets
+    - sourcemap
+ - *release*
+    - clean
+    - code-quality
+    - browserify
+    - scripts
+    - karma
+    - sprites
+    - stylesheets
+    - assets
+    - sourcemap
+    - jsdoc
+ - *karma* - runs unit tests, and generate code coverage report
+ - *watch* - runs livereload session, and watches src folder for changes
+ - *webserver* - runs local web sever
