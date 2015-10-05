@@ -4,5 +4,5 @@ var base = require('./application'),
     config = require('../config/options'),
     i18n = require('./translate');
 
-window.app.runtime = new base();
-window.app.runtime.run();
+window.app.runtime = base;
+window.app.runtime.startApplication();

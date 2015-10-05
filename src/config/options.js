@@ -1,4 +1,3 @@
-;
 var options;
 
 (function() {
