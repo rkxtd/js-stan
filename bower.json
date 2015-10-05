@@ -1,0 +1,24 @@
+{
+  "name": "FE-Boilerplate",
+  "version": "0.1.0",
+  "homepage": "https://github.com/xcomanche/fe-boilerplate",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:xcomanche/fe-boilerplate.git"
+  },
+  "authors": [
+    "Roman Shuvaryk <xcomanche@gmail.com>"
+  ],
+  "description": "Boilerplate for FE app",
+  "main": [],
+  "dependencies": {
+    "jquery": "=1.11.2",
+    "lodash": "=3.10.0"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "tests"
+  ]
+}

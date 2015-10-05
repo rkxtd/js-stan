@@ -1,0 +1,7 @@
+.idea
+node_modules
+karma
+build
+.sass-cache
+bower_components
+dist
