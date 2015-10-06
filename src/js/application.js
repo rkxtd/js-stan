@@ -3,10 +3,11 @@ var ApplicationCore = (function () {
     var publicScope = {};
     var mixins = {};
 
-    // TODO: move this to separate module and include by require
     var _ = require('lodash');
     var Sandbox = require('./core/Sandbox');
     var Exception = require('./core/exceptions/BaseException');
+
+    privateScope.modules = {};
 
     /**
      * Start application
@@ -210,7 +211,6 @@ var ApplicationCore = (function () {
 
     };
 
-    privateScope.modules = {};
     return publicScope;
 }());
 
