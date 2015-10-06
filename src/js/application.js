@@ -25,6 +25,8 @@ var ApplicationCore = (function () {
 
         publicScope.registerModule('testModule', testModule);
         publicScope.startModule('testModule');
+        publicScope.stopModule('testModule');
+        publicScope.stopApplication();
 
         return 0;
     };
@@ -80,7 +82,7 @@ var ApplicationCore = (function () {
         publicScope.checkIfModuleInstanceCreated(moduleId, true);
         publicScope.checkIfModuleMethodExists(moduleId, 'destroy', true);
 
-        module.destroy();
+        module.instance.destroy();
     };
 
     /**
