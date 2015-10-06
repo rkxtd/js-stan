@@ -2,7 +2,6 @@ var ApplicationCore = (function () {
     var privateScope = {};
     var publicScope = {};
     var mixins = {};
-
     var _ = require('lodash');
     var Sandbox = require('./core/Sandbox');
     var Exception = require('./core/exceptions/BaseException');
@@ -16,10 +15,11 @@ var ApplicationCore = (function () {
     publicScope.startApplication = function() {
         console.log('Application started');
         var testModule = require('./modules/testModule/testModule');
+        var testModule2 = require('./modules/testModule2/testModule2');
 
         publicScope.registerModule('testModule', testModule);
+        publicScope.registerModule('testModule2', testModule2);
         publicScope.startAllModules();
-        publicScope.stopApplication();
 
         return 0;
     };
