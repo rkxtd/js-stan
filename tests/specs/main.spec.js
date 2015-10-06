@@ -6,9 +6,11 @@ describe('Application', function () {
         expect(base).to.be.defined;
     });
 
-    it('method should return true', function () {
-    	var app = new base();
-    	
-        expect(app.run()).to.be.eq(0);
+    it('should run application', function () {
+        expect(base.startApplication()).to.be.eq(0);
+    });
+
+    it('method should stop application', function () {
+        expect(base.stopApplication()).to.be.eq(0);
     });
 });

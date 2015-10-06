@@ -1,19 +1,19 @@
 {
-  "name": "",
-  "version": "0.0.1",
-  "description": "",
-  "main": "dist/main.js",
+  "name": "js-stan",
+  "version": "0.1.0",
+  "description": "js framework with mediator & module pattern",
+  "main": "dist/scripts/app.js",
   "repository": {
     "type": "git",
-    "url": "github link"
+    "url": "https://github.com/xcomanche/js-stan"
   },
   "private": true,
   "keywords": [],
   "authors": [],
   "bugs": {
-    "url": "github link/issues"
+    "url": "https://github.com/xcomanche/js-stan/issues"
   },
-  "homepage": "github link#readme",
+  "homepage": "https://github.com/xcomanche/js-stan#readme",
   "dependencies": {
     "browserify": "^10.2.3",
     "browserify-shim": "^3.8.7"
@@ -48,8 +48,16 @@
     "gulp-webserver": "^0.9.1",
     "gulp.spritesmith": "^4.0.0",
     "imagemin-pngquant": "^4.1.2",
+    "jquery": "^2.1.4",
     "jsdoc": "^3.3.2",
     "jshint-stylish": "^2.0.0",
+    "browserify-istanbul": "^0.2.1",
+    "jquery": "^2.1.4",
+    "phantomjs": "^1.9.17",
+    "karma-browserify": "^4.2.1",
+    "karma-sinon-chai": "^1.0.0",
+    "proxyquireify": "^2.1.0",
+    "underscore": "^1.8.3",
     "karma": "^0.12.36",
     "karma-chai": "^0.1.0",
     "karma-coverage": "^0.4.2",
@@ -69,6 +77,7 @@
     "reactify": "^1.1.1",
     "run-sequence": "^1.1.0",
     "sinon": "^1.15.3",
+    "sinon-chai": "^2.8.0",
     "stubby": "^0.2.11",
     "vinyl-buffer": "^1.0.0",
     "vinyl-paths": "^1.0.0",
