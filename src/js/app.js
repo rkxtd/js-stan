@@ -6,3 +6,4 @@ var base = require('./application'),
 
 window.app.runtime = base;
 window.app.runtime.startApplication();
+document.write(window.app.runtime.render());

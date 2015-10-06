@@ -174,6 +174,13 @@ var ApplicationCore = (function () {
         );
     };
 
+    publicScope.render = function() {
+        var jade = require('jade');
+        var fn = jade.compileFile('../templates/layout.jade');
+        var html = fn();
+
+        return html;
+    };
     /**
      * Actual implementation of the checker for module
      * @param params

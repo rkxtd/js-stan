@@ -2,12 +2,13 @@ var options;
 
 (function() {
     var app = this;
-    var $ = require('jquery');
+    var _ = require('lodash');
 
     options = app.options = app.options || /* istanbul ignore next */ {};
 
-    app.options = $.extend(true, app.options, {
+    app.options = _.extend(true, app.options, {
         appName     : 'Application',
+        version     : '0.1.0',
         locale      : 'en_us',
         basePath    : '',
         selectors   : {
