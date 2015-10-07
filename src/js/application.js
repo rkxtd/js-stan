@@ -1,32 +1,28 @@
 var ApplicationCore = (function () {
     var privateScope = {};
     var publicScope = {};
-    var Exception = function (message, params) {
-        console.log(message);
-        this.message = message;
-        this.params = params;
+    var mixins = {};
+    var helpers = {
+        logger: require('./core/Logger')
     };
+    var _ = require('lodash');
+    var Sandbox = require('./core/Sandbox');
+    var Exception = require('./core/exceptions/BaseException');
 
-    // TODO: move this to separate module and include by require
-    var Sandbox = function() {
-        this.a = 1;
-        this.sayHi = function() {
-            console.log('Hi this is Sandbox');
-        }
-    };
+    privateScope.modules = {};
 
     /**
      * Start application
      * @returns {number}
      */
     publicScope.startApplication = function() {
-        console.log('Application started');
+        helpers.logger.log('Application started', {}, 3);
         var testModule = require('./modules/testModule/testModule');
+        var testModule2 = require('./modules/testModule2/testModule2');
 
         publicScope.registerModule('testModule', testModule);
-        publicScope.startModule('testModule');
-        publicScope.stopModule('testModule');
-        publicScope.stopApplication();
+        publicScope.registerModule('testModule2', testModule2);
+        publicScope.startAllModules();
 
         return 0;
     };
@@ -36,7 +32,9 @@ var ApplicationCore = (function () {
      * @returns {number}
      */
     publicScope.stopApplication = function() {
-        console.log('Application stopped');
+        publicScope.stopAllModules();
+
+        helpers.logger.log('Application started', {}, 3);
 
         return 0;
     };
@@ -62,13 +60,37 @@ var ApplicationCore = (function () {
      */
     publicScope.startModule = function(moduleId) {
         var module = privateScope.modules[moduleId];
+        var $ = require('jquery');
+
 
         publicScope.checkIfModuleExists(moduleId, true);
-        module.instance = module.creator(new Sandbox(this));
+        module.instance = module.creator(new Sandbox(this), _);
         publicScope.checkIfModuleInstanceCreated(moduleId, true);
         publicScope.checkIfModuleMethodExists(moduleId, 'init', true);
 
         module.instance.init();
+    };
+
+    /**
+     * run all the modules
+     */
+    publicScope.startAllModules = function() {
+        _.forEach(privateScope.modules, function(module, moduleId) {
+            if (privateScope.modules.hasOwnProperty(moduleId)) {
+                publicScope.startModule(moduleId);
+            }
+        });
+    };
+
+    /**
+     * Stop all the modules
+     */
+    publicScope.stopAllModules = function() {
+        _.forEach(privateScope.modules, function(module, moduleId) {
+            if (privateScope.modules.hasOwnProperty(moduleId)) {
+                publicScope.stopModule(moduleId);
+            }
+        });
     };
 
     /**
@@ -79,9 +101,11 @@ var ApplicationCore = (function () {
         var module = privateScope.modules[moduleId];
 
         publicScope.checkIfModuleExists(moduleId, true);
-        publicScope.checkIfModuleInstanceCreated(moduleId, true);
-        publicScope.checkIfModuleMethodExists(moduleId, 'destroy', true);
+        if (!publicScope.checkIfModuleInstanceCreated(moduleId)) {
+            return ;
+        }
 
+        publicScope.checkIfModuleMethodExists(moduleId, 'destroy', true);
         module.instance.destroy();
     };
 
@@ -153,6 +177,13 @@ var ApplicationCore = (function () {
         );
     };
 
+    publicScope.render = function() {
+        var jade = require('jade');
+        var fn = jade.compileFile('../templates/layout.jade');
+        var html = fn();
+
+        return html;
+    };
     /**
      * Actual implementation of the checker for module
      * @param params
@@ -190,7 +221,6 @@ var ApplicationCore = (function () {
 
     };
 
-    privateScope.modules = {};
     return publicScope;
 }());
 
