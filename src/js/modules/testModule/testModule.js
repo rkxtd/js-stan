@@ -1,28 +1,29 @@
 module.exports = (function() {
-    var sandbox,
-        _;
-    var publicScope = {};
-    var privateScope = {};
+    var scope = {
+        public: {},
+        private: {}
+    };
+    var me;
+    var logger;
 
-    publicScope.init = function() {
-        sandbox.sayHi();
-        console.log('Hi this is module');
-        sandbox.listen('module.update', _.bind(this, privateScope.moduleUpdate));
+    scope.public.init = function() {
+        logger.log('Hi this is module');
+        me.sandbox.listen('module.update', me.moduleUpdate, scope);
     };
 
-    publicScope.destroy = function() {
-        console.log('Module sath: Goodbye');
+    scope.public.destroy = function() {
+        logger.log('Module sath: Goodbye');
     };
 
-    privateScope.moduleUpdate = function(data) {
-        debugger;
-        console.log('This is testModule.moduleUpdate event.' + data);
+    scope.private.moduleUpdate = function(data) {
+        logger.log('This is testModule.moduleUpdate event.' + data);
     };
 
-    return function(localSandbox, lodash) {
-        sandbox = localSandbox;
-        _ = lodash;
+    return function(sandbox) {
+        scope.private.sandbox   = sandbox;
+        me                      = scope.private;
+        logger                  = sandbox.helpers.logger;
 
-        return publicScope;
+        return scope.public;
     };
 }());

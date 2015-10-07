@@ -2,6 +2,9 @@ var ApplicationCore = (function () {
     var privateScope = {};
     var publicScope = {};
     var mixins = {};
+    var helpers = {
+        logger: require('./core/Logger')
+    };
     var _ = require('lodash');
     var Sandbox = require('./core/Sandbox');
     var Exception = require('./core/exceptions/BaseException');
@@ -13,7 +16,7 @@ var ApplicationCore = (function () {
      * @returns {number}
      */
     publicScope.startApplication = function() {
-        console.log('Application started');
+        helpers.logger.log('Application started', {}, 3);
         var testModule = require('./modules/testModule/testModule');
         var testModule2 = require('./modules/testModule2/testModule2');
 
@@ -31,7 +34,7 @@ var ApplicationCore = (function () {
     publicScope.stopApplication = function() {
         publicScope.stopAllModules();
 
-        console.log('Application stopped');
+        helpers.logger.log('Application started', {}, 3);
 
         return 0;
     };
@@ -61,7 +64,7 @@ var ApplicationCore = (function () {
 
 
         publicScope.checkIfModuleExists(moduleId, true);
-        module.instance = module.creator(new Sandbox(this), $);
+        module.instance = module.creator(new Sandbox(this), _);
         publicScope.checkIfModuleInstanceCreated(moduleId, true);
         publicScope.checkIfModuleMethodExists(moduleId, 'init', true);
 

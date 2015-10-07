@@ -6,10 +6,11 @@ var options;
 
     options = app.options = app.options || /* istanbul ignore next */ {};
 
-    app.options = _.extend(true, app.options, {
+    app.options = _.extend(app.options, {
         appName     : 'Application',
         version     : '0.1.0',
         locale      : 'en_us',
+        logLevel    : 10,
         basePath    : '',
         selectors   : {
             app             : '.js-app',

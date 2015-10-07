@@ -1,22 +1,29 @@
 var Sandbox = (function() {
-    var Exception = require('./exceptions/BaseException');
-    var _ = require('lodash');
-    var privateScope = {
-        types: {}
-    };
-    var publicScope = {};
+    var Exception           = require('./exceptions/BaseException'),
+        helpers             = {
+            logger  : require('./Logger'),
+            _       : require('lodash')
+        },
+        scope               = {
+            private : {},
+            public  : {
+                helpers : helpers
+            }
+        },
+        constructor         = function () {
+            helpers.logger.log('Sandbox created');
+        };
+    scope.private.types     = [];
+    constructor.prototype   = scope.public;
 
-    var func = function () {
-        console.log('Sandbox created');
-    };
-    func.prototype = publicScope;
-
-    publicScope.sayHi = function() {
-        console.log('Hi this is Sandbox');
-    };
-
-    publicScope.listen = function(type, callBack) {
-        if (typeof(type) !== 'string') {
+    /**
+     * Subscribe for specified event, with binding callBack and passing scope
+     * @param eventName {string} Required - event which module want to listen, and fire callBack
+     * @param callBack {function} Required - function which will be executed, eventData will be passed as first param
+     * @param passedScope {object} Optional. Default: {} - Scope which will be applied to function.
+     */
+    scope.public.listen = function(eventName, callBack, passedScope) {
+        if (typeof(eventName) !== 'string') {
             throw new Exception('core.sandbox.providedTypeNotString');
         }
 
@@ -24,26 +31,35 @@ var Sandbox = (function() {
             throw new Exception('core.sandbox.providedCallBackNotFunction');
         }
 
-        if (Object.prototype.toString.call() === '[object Array]') {
-            privateScope.types[type].push(callBack);
-        } else {
-            privateScope.types[type] = [callBack];
+        if (passedScope && typeof(passedScope) !== 'object') {
+            throw new Exception('core.sandbox.providedScopeNotAnObject');
         }
-        console.log('Event ['+ type + '] subscribed');
+
+        var listener = {
+            fn: callBack,
+            scope: passedScope || {}
+        };
+
+        if (Object.prototype.toString.call() === '[object Array]') {
+            scope.private.types[eventName].push(listener);
+        } else {
+            scope.private.types[eventName] = [listener];
+        }
+        helpers.logger.log('Event ['+ eventName + '] subscribed');
     };
 
-    publicScope.notify = function(type, data) {
-        console.log('Notification ['+ type + '] pushed');
-        if (!privateScope.types.hasOwnProperty(type)) {
+    scope.public.notify = function(type, data) {
+        helpers.logger.log('Notification ['+ type + '] pushed', {}, 1);
+        if (!scope.private.types.hasOwnProperty(type)) {
             return ;
         }
 
-        privateScope.types[type].forEach(function(callBack) {
-            callBack.apply({}, [data]);
+        scope.private.types[type].forEach(function(listener) {
+            listener.fn.apply(listener.scope, [data]);
         })
     };
 
-    return func;
+    return constructor;
 }());
 
 module.exports = Sandbox;

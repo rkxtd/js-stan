@@ -9,6 +9,7 @@
         'errors.system.moduleMethodNotFound': 'Can\'t find method {0} in module {1}',
         'errors.system.moduleCreatorNotFunction': 'For module {0} creator Function passed not as Function',
         'core.sandbox.providedTypeNotString': 'core.sandbox.providedTypeNotString',
-        'core.sandbox.providedCallBackNotFunction': 'core.sandbox.providedCallBackNotFunction'
+        'core.sandbox.providedCallBackNotFunction': 'core.sandbox.providedCallBackNotFunction',
+        'core.sandbox.providedScopeNotAnObject': 'core.sandbox.providedScopeNotAnObject'
     }
 }).call(window.app = window.app || /* istanbul ignore next */ {});
