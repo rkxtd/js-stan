@@ -9,7 +9,7 @@ var options;
     app.options = _.extend(app.options, {
         appName     : 'Application',
         version     : '0.1.0',
-        locale      : 'en_us',
+        locale      : 'uk_ua',
         logLevel    : 10,
         basePath    : '',
         selectors   : {

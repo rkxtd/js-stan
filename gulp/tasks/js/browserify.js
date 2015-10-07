@@ -6,15 +6,15 @@ module.exports = function(gulp, gulpPlugins, config) {
     var reactify = require('reactify');
     var sourcemaps = require('gulp-sourcemaps');
     var uglify = require('gulp-uglify');
+    var globify = require('require-globify');
 
     return gulp.task('browserify', function () {
         // set up the browserify instance on a task basis
         var b = browserify({
             entries: './src/js/app.js',
             debug: true,
-            transform: false
             // defining transforms here will avoid crashing your stream
-            //transform: [reactify]
+            transform: [globify, reactify]
         });
 
         return b.bundle()
