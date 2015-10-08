@@ -1,13 +1,17 @@
-var ApplicationCore = (function () {
-    var privateScope = {};
-    var publicScope = {};
-    var mixins = {};
-    var helpers = {
-        logger: require('./core/Logger')
-    };
-    var _ = require('lodash');
-    var Sandbox = require('./core/Sandbox');
-    var Exception = require('./core/exceptions/BaseException');
+var ApplicationCore     = (function () {
+    var privateScope    = {},
+        publicScope     = {},
+        extensions      = {
+            Sandbox     : require('./core/Sandbox'),
+            Translate   : require('./translate')
+        },
+        helpers         = {
+            Exception   : require('./core/exceptions/BaseException'),
+            Logger      : require('./core/Logger'),
+            Lodash      : require('lodash'),
+            _           : require('./core/utils/Translate')
+        },
+        _ = helpers._;
 
     privateScope.modules = {};
 
@@ -16,7 +20,7 @@ var ApplicationCore = (function () {
      * @returns {number}
      */
     publicScope.startApplication = function() {
-        helpers.logger.log('Application started', {}, 3);
+        helpers.Logger.log(_('application.started'), {}, 3);
         var testModule = require('./modules/testModule/testModule');
         var testModule2 = require('./modules/testModule2/testModule2');
 
@@ -34,7 +38,7 @@ var ApplicationCore = (function () {
     publicScope.stopApplication = function() {
         publicScope.stopAllModules();
 
-        helpers.logger.log('Application started', {}, 3);
+        helpers.Logger.log(_('application.stopped'), {}, 3);
 
         return 0;
     };
@@ -60,22 +64,23 @@ var ApplicationCore = (function () {
      */
     publicScope.startModule = function(moduleId) {
         var module = privateScope.modules[moduleId];
-        var $ = require('jquery');
-
 
         publicScope.checkIfModuleExists(moduleId, true);
-        module.instance = module.creator(new Sandbox(this), _);
+        module.instance = module.creator(new extensions.Sandbox(helpers), helpers);
         publicScope.checkIfModuleInstanceCreated(moduleId, true);
         publicScope.checkIfModuleMethodExists(moduleId, 'init', true);
 
-        module.instance.init();
+        privateScope.loadTranslations(moduleId);
+        module.instance.init({
+            id: moduleId
+        });
     };
 
     /**
      * run all the modules
      */
     publicScope.startAllModules = function() {
-        _.forEach(privateScope.modules, function(module, moduleId) {
+        helpers.Lodash.forEach(privateScope.modules, function(module, moduleId) {
             if (privateScope.modules.hasOwnProperty(moduleId)) {
                 publicScope.startModule(moduleId);
             }
@@ -86,7 +91,7 @@ var ApplicationCore = (function () {
      * Stop all the modules
      */
     publicScope.stopAllModules = function() {
-        _.forEach(privateScope.modules, function(module, moduleId) {
+        helpers.Lodash.forEach(privateScope.modules, function(module, moduleId) {
             if (privateScope.modules.hasOwnProperty(moduleId)) {
                 publicScope.stopModule(moduleId);
             }
@@ -119,7 +124,7 @@ var ApplicationCore = (function () {
     publicScope.checkIfCreatorFunction = function(moduleId, creator, shouldThrowError) {
         if (typeof(creator) !== 'function') {
             if (shouldThrowError) {
-                throw new Exception('errors.system.moduleCreatorNotFunction', moduleId);
+                throw new extensions.Exception('errors.system.moduleCreatorNotFunction', moduleId);
             }
             return false;
         }
@@ -177,19 +182,29 @@ var ApplicationCore = (function () {
         );
     };
 
-    publicScope.render = function() {
-        var jade = require('jade');
-        var fn = jade.compileFile('../templates/layout.jade');
-        var html = fn();
+    /**
+     * Load module transactions.
+     * @param moduleId {string} Required
+     */
+    privateScope.loadTranslations = function(moduleId) {
+        var module = privateScope.modules[moduleId];
 
-        return html;
+        publicScope.checkIfModuleExists(moduleId, true);
+        publicScope.checkIfModuleInstanceCreated(moduleId, true);
+
+        if (publicScope.checkIfModuleMethodExists(moduleId, 'loadTranslations')) {
+            helpers.Lodash.forEach(module.instance.loadTranslations(), function(value, key) {
+                app.locale.set(moduleId + '__' + key, value);
+            });
+        }
     };
+
     /**
      * Actual implementation of the checker for module
-     * @param params
-     * @param shouldThrowError
-     * @param type
-     * @returns {*}
+     * @param params {object} Required. Object with data to verify. Structure depends on type
+     * @param shouldThrowError {boolean} Optional. Default: False - if True - will throw the exception
+     * @param type {string} Optional. key for verification
+     * @returns {boolean} True if check succeed. Otherwise - False
      */
     privateScope.checkModule = function(params, shouldThrowError, type) {
         var module = privateScope.modules[params.moduleId];
@@ -214,11 +229,10 @@ var ApplicationCore = (function () {
         }
 
         if (!verificationResults && shouldThrowError) {
-            throw new Exception(exception[0], exception[1]);
+            throw new extensions.Exception(exception[0], exception[1]);
         }
 
         return verificationResults;
-
     };
 
     return publicScope;

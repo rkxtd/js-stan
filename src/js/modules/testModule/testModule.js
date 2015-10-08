@@ -1,29 +1,34 @@
 module.exports = (function() {
-    var scope = {
-        public: {},
-        private: {}
-    };
-    var me;
-    var logger;
+    var sandbox,
+        helpers,
+        config;
+    var publicScope = {};
+    var privateScope = {};
+    var me = this;
+    var translations = require('./i18n/*.js', {mode: 'expand'});
 
-    scope.public.init = function() {
-        logger.log('Hi this is module');
-        me.sandbox.listen('module.update', me.moduleUpdate, scope);
-    };
-
-    scope.public.destroy = function() {
-        logger.log('Module sath: Goodbye');
+    publicScope.init = function(localConfig) {
+        config = localConfig;
+        helpers.Logger.log('Hi this is module 1');
+        sandbox.listen('module.update', privateScope.moduleUpdate, me);
     };
 
-    scope.private.moduleUpdate = function(data) {
-        logger.log('This is testModule.moduleUpdate event.' + data);
+    publicScope.loadTranslations = function() {
+        return require('./i18n/' + app.options.locale + '.js');
     };
 
-    return function(sandbox) {
-        scope.private.sandbox   = sandbox;
-        me                      = scope.private;
-        logger                  = sandbox.helpers.logger;
+    publicScope.destroy = function() {
+        helpers.Logger.log('Module 1 sath: Goodbye');
+    };
 
-        return scope.public;
+    privateScope.moduleUpdate = function(data) {
+        helpers.Logger.log('This is testModule1.moduleUpdate event.' + data);
+        helpers.Logger.log(app.locale.get(config.id + '__welcome'), {}, 5);
+    };
+    return function(localSandbox, localHelpers) {
+        sandbox = localSandbox;
+        helpers = localHelpers;
+
+        return publicScope;
     };
 }());

@@ -18,13 +18,19 @@ var Logger = (function () {
         this.date = new Date();
     }
 
+    /**
+     * Logger function
+     * @param msg
+     * @param details
+     * @param logLevel
+     */
     publicScope.log = function(msg, details, logLevel) {
-        logLevel = logLevel | 3;
+        logLevel = logLevel || 3;
         var message = new Message(msg, details, logLevel);
 
         privateScope.messages.push(message);
         if (window.app.options.logLevel >= logLevel) {
-            console.log('Logger [level:' + message.logLevel + '] ' + message.message);
+            console.log('[' + new Date().toJSON().replace('T', ' ').replace('Z', '') + '|lv:' + message.logLevel + '] ' + message.message);
         }
     };
 
