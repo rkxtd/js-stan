@@ -18,7 +18,7 @@ module.exports = (function() {
     };
 
     publicScope.destroy = function() {
-        sandbox.helpers.Logger.log('Module 1 sath: Goodbye');
+        helpers.Logger.log('Module 1 sath: Goodbye');
     };
 
     privateScope.moduleUpdate = function(data) {

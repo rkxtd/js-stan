@@ -24,6 +24,7 @@ var browserifyConfig = {
     debug: true,
     paths: ['src', 'tests'],
     plugin: ['proxyquireify/plugin'],
+    transform: [require('require-globify')],
     configure: function(bundle) {
         bundle.on('prebundle', function() {
             return bundle
