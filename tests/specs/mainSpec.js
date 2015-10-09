@@ -13,4 +13,9 @@ describe('Application', function () {
     it('method should stop application', function () {
         expect(base.stopApplication()).to.be.eq(0);
     });
+
+    it('method should call non existed module', function () {
+        base.startModule('');
+        expect(base.startModule()).to.be.eq(0);
+    });
 });

@@ -12,6 +12,7 @@ var ApplicationCore     = (function () {
             _           : require('./core/utils/Translate')
         },
         _ = helpers._;
+    var modules         = require('./modules/testModule/**/*Module.js', {mode: 'expand'});
 
     privateScope.modules = {};
 
@@ -20,13 +21,18 @@ var ApplicationCore     = (function () {
      * @returns {number}
      */
     publicScope.startApplication = function() {
+
         helpers.Logger.log(_('application.started'), {}, 3);
         var testModule = require('./modules/testModule/testModule');
-        var testModule2 = require('./modules/testModule2/testModule2');
+        var testModule2 = require('./modules/testModule2/testModule');
 
         publicScope.registerModule('testModule', testModule);
         publicScope.registerModule('testModule2', testModule2);
         publicScope.startAllModules();
+
+        publicScope.startApplication = function() {
+            helpers.Logger.warning('Application is already up and running. You can\'t start it again');
+        };
 
         return 0;
     };
@@ -81,6 +87,7 @@ var ApplicationCore     = (function () {
      */
     publicScope.startAllModules = function() {
         helpers.Lodash.forEach(privateScope.modules, function(module, moduleId) {
+            /* istanbul ignore else */
             if (privateScope.modules.hasOwnProperty(moduleId)) {
                 publicScope.startModule(moduleId);
             }
@@ -92,6 +99,7 @@ var ApplicationCore     = (function () {
      */
     publicScope.stopAllModules = function() {
         helpers.Lodash.forEach(privateScope.modules, function(module, moduleId) {
+            /* istanbul ignore else */
             if (privateScope.modules.hasOwnProperty(moduleId)) {
                 publicScope.stopModule(moduleId);
             }
@@ -228,8 +236,8 @@ var ApplicationCore     = (function () {
                 break;
         }
 
-        if (!verificationResults && shouldThrowError) {
-            throw new extensions.Exception(exception[0], exception[1]);
+        if (!verificationResults) {
+            helpers.Logger.error(_(exception[0]), exception[1], shouldThrowError, 1);
         }
 
         return verificationResults;

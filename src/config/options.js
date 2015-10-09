@@ -10,7 +10,14 @@ var options;
         appName     : 'Application',
         version     : '0.1.0',
         locale      : 'uk_ua',
-        logLevel    : 10,
+        logging     : {
+            enabled         : true,
+            displayLogLevels    : {
+                info: 3,
+                warning: 6,
+                error: 10
+            }
+        },
         basePath    : '',
         selectors   : {
             app             : '.js-app',

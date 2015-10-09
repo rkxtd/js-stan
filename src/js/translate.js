@@ -1,5 +1,11 @@
+
+
 (function() {
-    var app = this;
+    var app = this,
+        config = require('../config/options'),
+        translations = require('../i18n/*', {mode: 'expand'}),
+        currentTranslation = require('../i18n/' + config.locale + '.js');
+
     app.locale = app.locale || {};
     app.locale = {
         translations: app.locale.translations,
