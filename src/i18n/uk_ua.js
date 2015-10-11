@@ -8,6 +8,7 @@
         'errors.system.moduleInstanceNotCreated': 'Конструктор модуля [{moduleId}] не було викликано',
         'errors.system.moduleMethodNotFound': 'У модуля [{moduleId}] не знайдено метод [{methodName}]',
         'errors.system.moduleCreatorNotFunction': 'Для модуля [{moduleId}] creator-функція передана з невірним типом',
+        'errors.system.checkTypeNotFound': 'У системі не зареєстровано перевірку: [{0}]',
         'core.sandbox.providedTypeNotString': 'Type повинен бути стрічкою',
         'core.sandbox.providedCallBackNotFunction': 'Callback повинен бути функцією',
         'core.sandbox.providedScopeNotAnObject': 'Scope повинен бути об\'єктом',

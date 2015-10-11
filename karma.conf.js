@@ -55,7 +55,15 @@ module.exports = function(config) {
             reporters: [
                 {type: 'html'},
                 {type: 'text-summary'}
-            ]
+            ],
+            check: {
+                global: {
+                    statements: 85,
+                    branches: 80,
+                    functions: 85,
+                    lines: 85
+                }
+            }
         },
         jsonFixturesPreprocessor: {
             variableName: '__json__'
