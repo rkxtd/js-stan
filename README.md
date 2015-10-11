@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/xcomanche/js-stan.svg?branch=master)](https://travis-ci.org/xcomanche/js-stan)
 # JS-Stan.
 
 ## Own js framework.
