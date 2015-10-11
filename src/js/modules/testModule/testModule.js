@@ -9,7 +9,7 @@ module.exports = (function() {
 
     publicScope.init = function(localConfig) {
         config = localConfig;
-        helpers.Logger.log('Hi this is module 1');
+        helpers.Logger.log(app.locale.get(config.id + '__welcome'), {}, 5);
         sandbox.listen('module.update', privateScope.moduleUpdate, me);
     };
 
@@ -23,7 +23,6 @@ module.exports = (function() {
 
     privateScope.moduleUpdate = function(data) {
         helpers.Logger.log('This is testModule1.moduleUpdate event.' + data);
-        helpers.Logger.log(app.locale.get(config.id + '__welcome'), {}, 5);
     };
     return function(localSandbox, localHelpers) {
         sandbox = localSandbox;

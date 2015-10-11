@@ -11,7 +11,7 @@ var Sandbox = (function() {
      */
     var Sandbox = function (helpers) {
         scope.helpers = helpers;
-        helpers.Logger.log('sandbox.created');
+        helpers.Logger.log('sandbox.created', {}, 5);
     };
     scope.types     = [];
     Sandbox.prototype   = scope.public;

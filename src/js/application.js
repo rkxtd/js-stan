@@ -14,14 +14,17 @@ var ApplicationCore     = (function () {
     var modules         = require('./modules/testModule/**/*Module.js', {mode: 'expand'});
 
     privateScope.modules = {};
+    privateScope.applicationState = {
+        running: false
+    };
 
     /**
      * Start application
      * @returns {number}
      */
-    publicScope.startApplication = function() {
-
-        helpers.Logger.log('application.started', {}, 3);
+    privateScope.startApplicationMaker = function() {
+        privateScope.applicationState.running = true;
+        helpers.Logger.log('application.started', {}, 2);
         var testModule = require('./modules/testModule/testModule');
         var testModule2 = require('./modules/testModule2/testModule');
         var testModule3 = require('./modules/testModule3/testModule');
@@ -35,7 +38,7 @@ var ApplicationCore     = (function () {
         publicScope.startAllModules();
 
         publicScope.startApplication = function() {
-            helpers.Logger.warning('Application is already up and running. You can\'t start it again');
+            helpers.Logger.warning('errors.system.applicationIsAlreadyStarted');
 
             return 0
         };
@@ -43,14 +46,24 @@ var ApplicationCore     = (function () {
         return 0;
     };
 
+    publicScope.startApplication = privateScope.startApplicationMaker;
+
+
+
     /**
      * Stop Application
      * @returns {number}
      */
     publicScope.stopApplication = function() {
+        if (!publicScope.checkIfApplicationRunning()) {
+            return 0;
+        }
+
         publicScope.stopAllModules();
 
-        helpers.Logger.log('application.stopped', {}, 3);
+        helpers.Logger.log('application.stopped', {}, 2);
+        publicScope.startApplication = privateScope.startApplicationMaker;
+        privateScope.applicationState.running = false;
 
         return 0;
     };
@@ -74,6 +87,10 @@ var ApplicationCore     = (function () {
      */
     publicScope.startModule = function(moduleId) {
         var module = privateScope.modules[moduleId];
+
+        if (!publicScope.checkIfApplicationRunning()) {
+            return 0;
+        }
 
         if (!publicScope.checkIfModuleExists(moduleId, true)) {
             return 0;
@@ -128,13 +145,28 @@ var ApplicationCore     = (function () {
     publicScope.stopModule = function(moduleId) {
         var module = privateScope.modules[moduleId];
 
-        publicScope.checkIfModuleExists(moduleId, true);
-        if (!publicScope.checkIfModuleInstanceCreated(moduleId)) {
-            return ;
+        if (publicScope.checkIfModuleExists(moduleId)) {
+            if (publicScope.checkIfModuleInstanceCreated(moduleId)) {
+                if (publicScope.checkIfModuleMethodExists(moduleId, 'destroy')) {
+                    module.instance.destroy();
+                }
+            }
         }
 
-        publicScope.checkIfModuleMethodExists(moduleId, 'destroy', true);
-        module.instance.destroy();
+        delete privateScope.modules[moduleId];
+        module = undefined;
+    };
+
+    /**
+     * check if application was started, and not terminated yet
+     * @param shouldThrowError
+     * @returns {boolean}
+     */
+    publicScope.checkIfApplicationRunning = function(shouldThrowError) {
+        return publicScope.check({},
+            shouldThrowError,
+            'applicationIsRunning'
+        );
     };
 
     /**
@@ -145,7 +177,7 @@ var ApplicationCore     = (function () {
      * @returns {boolean}
      */
     publicScope.checkIfCreatorFunction = function(moduleId, creator, shouldThrowError) {
-        return publicScope.checkModule({
+        return publicScope.check({
                 moduleId: moduleId,
                 creator: creator
             },
@@ -162,7 +194,7 @@ var ApplicationCore     = (function () {
      * @return {boolean | Exception}
      */
     publicScope.checkIfModuleExists = function(moduleId, shouldThrowError) {
-        return publicScope.checkModule({
+        return publicScope.check({
                 moduleId: moduleId
             },
             shouldThrowError,
@@ -178,7 +210,7 @@ var ApplicationCore     = (function () {
      * @return {boolean | Exception}
      */
     publicScope.checkIfModuleInstanceCreated = function(moduleId, shouldThrowError) {
-        return publicScope.checkModule({
+        return publicScope.check({
                 moduleId: moduleId
             },
             shouldThrowError,
@@ -195,7 +227,7 @@ var ApplicationCore     = (function () {
      * @return {boolean | Exception}
      */
     publicScope.checkIfModuleMethodExists = function(moduleId, method, shouldThrowError) {
-        return publicScope.checkModule({
+        return publicScope.check({
                 moduleId: moduleId,
                 methodName: method
             },
@@ -228,7 +260,7 @@ var ApplicationCore     = (function () {
      * @param type {string} Optional. key for verification
      * @returns {boolean} True if check succeed. Otherwise - False
      */
-    publicScope.checkModule = function(params, shouldThrowError, type) {
+    publicScope.check = function(params, shouldThrowError, type) {
         var module = privateScope.modules[params.moduleId];
         var verificationResults;
         var exception;
@@ -250,14 +282,20 @@ var ApplicationCore     = (function () {
                 verificationResults = Boolean(typeof(params.creator) === 'function');
                 exception = ['errors.system.moduleCreatorNotFunction', params];
                 break;
+            case 'applicationIsRunning':
+                verificationResults = Boolean(privateScope.applicationState.running);
+                exception = ['errors.system.applicationNotRun', params];
+                break;
             default:
                 verificationResults = false;
                 exception = ['errors.system.checkTypeNotFound', type];
                 break;
         }
 
-        if (!verificationResults) {
+        if (!verificationResults && shouldThrowError) {
             helpers.Logger.error(exception[0], exception[1], shouldThrowError, 1);
+        } else if (!verificationResults) {
+            helpers.Logger.warning(exception[0], exception[1], 2);
         }
 
         return verificationResults;

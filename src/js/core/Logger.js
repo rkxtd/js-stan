@@ -51,7 +51,7 @@ var Logger = (function () {
             case 'info':
                 returnObj.settings = 'color: gray';
                 break;
-            case 'warning':
+            case 'warn':
                 returnObj.settings = 'color: orange';
                 break;
             case 'error':
@@ -74,7 +74,7 @@ var Logger = (function () {
     };
 
     publicScope.warning = function(msg, params, logLevel) {
-        privateScope.addMessage('warning', msg, params, false, logLevel);
+        privateScope.addMessage('warn', msg, params, false, logLevel);
     };
 
     publicScope.error = function(msg, params, shouldThrowTheError, logLevel) {

@@ -15,6 +15,7 @@ module.exports = (function() {
     return function(localSandbox, localHelpers) {
         sandbox = localSandbox;
         helpers = localHelpers;
+
         return publicScope;
     };
 }());
