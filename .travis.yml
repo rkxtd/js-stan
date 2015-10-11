@@ -6,9 +6,7 @@ before_install:
   - sudo npm install -g bower -y
   - sudo npm install -g gulp -y
 install:
-  npm install
-before_script:
-  npm install
+  sudo npm install
 script:
   gulp release
 after_success:
