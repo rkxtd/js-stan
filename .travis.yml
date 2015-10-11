@@ -5,6 +5,7 @@ before_install:
   - sudo apt-get install nodejs -y
   - sudo npm install -g bower -y
   - sudo npm install -g gulp -y
+  - sudo npm install -g npm@2
 install:
   sudo npm install
 script:
