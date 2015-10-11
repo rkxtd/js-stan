@@ -10,7 +10,7 @@
     app.locale = {
         translations: app.locale.translations,
         get: function(key) {
-            return this.translations[key];
+            return this.translations[key] || key;
         },
         set: function(key, value) {
             this.translations[key] = value;

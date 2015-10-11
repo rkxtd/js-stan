@@ -11,7 +11,7 @@ var Sandbox = (function() {
      */
     var Sandbox = function (helpers) {
         scope.helpers = helpers;
-        helpers.Logger.log(scope.helpers._('sandbox.created'));
+        helpers.Logger.log('sandbox.created');
     };
     scope.types     = [];
     Sandbox.prototype   = scope.public;
@@ -24,15 +24,15 @@ var Sandbox = (function() {
      */
     scope.public.listen = function(eventName, callBack, passedScope) {
         if (typeof(eventName) !== 'string') {
-            throw new scope.helpers.Exception(scope.helpers._('core.sandbox.providedTypeNotString'));
+            throw new scope.helpers.Exception('core.sandbox.providedTypeNotString');
         }
 
         if (typeof(callBack) !== 'function') {
-            throw new scope.helpers.Exception(scope.helpers._('core.sandbox.providedCallBackNotFunction'));
+            throw new scope.helpers.Exception('core.sandbox.providedCallBackNotFunction');
         }
 
         if (passedScope && typeof(passedScope) !== 'object') {
-            throw new scope.helpers.Exception(scope.helpers._('core.sandbox.providedScopeNotAnObject'));
+            throw new scope.helpers.Exception('core.sandbox.providedScopeNotAnObject');
         }
 
         var listener = {
@@ -46,7 +46,7 @@ var Sandbox = (function() {
             scope.types[eventName] = [listener];
         }
 
-        scope.helpers.Logger.log(scope.helpers._('sandbox.subscribedForEvent', eventName));
+        scope.helpers.Logger.log('sandbox.subscribedForEvent', {eventName: eventName});
     };
 
     /**
@@ -55,7 +55,7 @@ var Sandbox = (function() {
      * @param data {mixed} - Optional. data should be passed to all the subscribers
      */
     scope.public.notify = function(eventName, data) {
-        scope.helpers.Logger.log(scope.helpers._('sandbox.firedEvent', eventName), {}, 2);
+        scope.helpers.Logger.log('sandbox.firedEvent', {eventName: eventName}, 2);
         if (!scope.types.hasOwnProperty(eventName)) {
             return ;
         }

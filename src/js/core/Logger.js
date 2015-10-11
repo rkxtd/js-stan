@@ -1,5 +1,5 @@
 var Logger = (function () {
-
+    var __ = require('./utils/Translate');
     var privateScope = {
             messages: []
         },
@@ -11,10 +11,10 @@ var Logger = (function () {
      * @param logLevel
      * @constructor
      */
-    function Message(type, message, details, logLevel) {
+    function Message(type, message, params, logLevel) {
         this.type = type;
         this.message = message;
-        this.details = details;
+        this.params = params;
         this.logLevel = logLevel;
         this.date = new Date();
     }
@@ -27,8 +27,12 @@ var Logger = (function () {
         return this.format()['settings'];
     };
 
+    Message.prototype.getMessage = function() {
+        return __(this.message, this.params);
+    };
+
     Message.prototype.format = function() {
-        var template = '%c [{date} | {type} | lv: {level}] {message} [{details}]';
+        var template = '%c [{date}\t| {type}\t|lv: {level}] {message}';
         var returnObj = {
             message: '',
             settings: ''
@@ -40,8 +44,7 @@ var Logger = (function () {
             .replace('Z', '')
             .replace('{type}', this.type)
             .replace('{level}', this.logLevel)
-            .replace('{message}', this.message)
-            .replace('{details}', (this.details) ? 'Look inside the log' : '')
+            .replace('{message}', this.getMessage())
         ;
 
         switch(this.type){
@@ -63,25 +66,26 @@ var Logger = (function () {
     /**
      * Logger function
      * @param msg
-     * @param details
+     * @param params
      * @param logLevel
      */
-    publicScope.log = function(msg, details, logLevel) {
-        privateScope.addMessage('info', msg, details, false, logLevel);
+    publicScope.log = function(msg, params, logLevel) {
+        privateScope.addMessage('info', msg, params, false, logLevel);
     };
 
-    publicScope.warning = function(msg, details, logLevel) {
-        privateScope.addMessage('warning', msg, details, false, logLevel);
+    publicScope.warning = function(msg, params, logLevel) {
+        privateScope.addMessage('warning', msg, params, false, logLevel);
     };
 
-    publicScope.error = function(msg, details, shouldThrowTheError, logLevel) {
-        privateScope.addMessage('error', msg, details, shouldThrowTheError, logLevel);
+    publicScope.error = function(msg, params, shouldThrowTheError, logLevel) {
+        privateScope.addMessage('error', msg, params, shouldThrowTheError, logLevel);
     };
 
-    privateScope.addMessage = function(type, msg, details, shouldThrowTheError, logLevel) {
+    privateScope.addMessage = function(type, msg, params, shouldThrowTheError, logLevel) {
         logLevel = logLevel || 3;
         shouldThrowTheError = shouldThrowTheError || false;
-        var message = new Message(type, msg, details, logLevel);
+
+        var message = new Message(type, msg, params, logLevel);
 
         privateScope.messages.push(message);
         privateScope.display(message);
@@ -96,7 +100,6 @@ var Logger = (function () {
         if (app.options.logging.enabled) {
             if (app.options.logging.displayLogLevels[message.type] >= message.logLevel) {
                 console.log(message.getFormattedMessage(), message.getConsoleSettings());
-                //} console.log('%c Oh my heavens! ', 'color: red');
             }
         }
     };

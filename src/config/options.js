@@ -13,7 +13,7 @@ var options;
         logging     : {
             enabled         : true,
             displayLogLevels    : {
-                info: 3,
+                info: 5,
                 warning: 6,
                 error: 10
             }

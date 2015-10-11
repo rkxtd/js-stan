@@ -8,8 +8,7 @@ var ApplicationCore     = (function () {
         helpers         = {
             Exception   : require('./core/exceptions/BaseException'),
             Logger      : require('./core/Logger'),
-            Lodash      : require('lodash'),
-            _           : require('./core/utils/Translate')
+            Lodash      : require('lodash')
         },
         _ = helpers._;
     var modules         = require('./modules/testModule/**/*Module.js', {mode: 'expand'});
@@ -22,7 +21,7 @@ var ApplicationCore     = (function () {
      */
     publicScope.startApplication = function() {
 
-        helpers.Logger.log(_('application.started'), {}, 3);
+        helpers.Logger.log('application.started', {}, 3);
         var testModule = require('./modules/testModule/testModule');
         var testModule2 = require('./modules/testModule2/testModule');
 
@@ -44,7 +43,7 @@ var ApplicationCore     = (function () {
     publicScope.stopApplication = function() {
         publicScope.stopAllModules();
 
-        helpers.Logger.log(_('application.stopped'), {}, 3);
+        helpers.Logger.log('application.stopped', {}, 3);
 
         return 0;
     };
@@ -183,7 +182,7 @@ var ApplicationCore     = (function () {
     publicScope.checkIfModuleMethodExists = function(moduleId, method, shouldThrowError) {
         return privateScope.checkModule({
                 moduleId: moduleId,
-                method: method
+                methodName: method
             },
             shouldThrowError,
             'methodExists'
@@ -229,7 +228,7 @@ var ApplicationCore     = (function () {
                 exception = ['errors.system.moduleInstanceNotCreated', params];
                 break;
             case 'methodExists':
-                verificationResults = Boolean(typeof(module.instance[params.method]) === 'function');
+                verificationResults = Boolean(typeof(module.instance[params.methodName]) === 'function');
                 exception = ['errors.system.moduleMethodNotFound', params];
                 break;
             default:
@@ -237,7 +236,7 @@ var ApplicationCore     = (function () {
         }
 
         if (!verificationResults) {
-            helpers.Logger.error(_(exception[0]), exception[1], shouldThrowError, 1);
+            helpers.Logger.error(exception[0], exception[1], shouldThrowError, 1);
         }
 
         return verificationResults;
