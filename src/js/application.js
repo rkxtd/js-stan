@@ -8,10 +8,10 @@ var ApplicationCore     = (function () {
         helpers         = {
             Exception   : require('./core/exceptions/BaseException'),
             Logger      : require('./core/Logger'),
-            Lodash      : require('lodash'),
-            _           : require('./core/utils/Translate')
+            Lodash      : require('lodash')
         },
         _ = helpers._;
+    var modules         = require('./modules/testModule/**/*Module.js', {mode: 'expand'});
 
     privateScope.modules = {};
 
@@ -20,13 +20,18 @@ var ApplicationCore     = (function () {
      * @returns {number}
      */
     publicScope.startApplication = function() {
-        helpers.Logger.log(_('application.started'), {}, 3);
+
+        helpers.Logger.log('application.started', {}, 3);
         var testModule = require('./modules/testModule/testModule');
-        var testModule2 = require('./modules/testModule2/testModule2');
+        var testModule2 = require('./modules/testModule2/testModule');
 
         publicScope.registerModule('testModule', testModule);
         publicScope.registerModule('testModule2', testModule2);
         publicScope.startAllModules();
+
+        publicScope.startApplication = function() {
+            helpers.Logger.warning('Application is already up and running. You can\'t start it again');
+        };
 
         return 0;
     };
@@ -38,7 +43,7 @@ var ApplicationCore     = (function () {
     publicScope.stopApplication = function() {
         publicScope.stopAllModules();
 
-        helpers.Logger.log(_('application.stopped'), {}, 3);
+        helpers.Logger.log('application.stopped', {}, 3);
 
         return 0;
     };
@@ -81,6 +86,7 @@ var ApplicationCore     = (function () {
      */
     publicScope.startAllModules = function() {
         helpers.Lodash.forEach(privateScope.modules, function(module, moduleId) {
+            /* istanbul ignore else */
             if (privateScope.modules.hasOwnProperty(moduleId)) {
                 publicScope.startModule(moduleId);
             }
@@ -92,6 +98,7 @@ var ApplicationCore     = (function () {
      */
     publicScope.stopAllModules = function() {
         helpers.Lodash.forEach(privateScope.modules, function(module, moduleId) {
+            /* istanbul ignore else */
             if (privateScope.modules.hasOwnProperty(moduleId)) {
                 publicScope.stopModule(moduleId);
             }
@@ -175,7 +182,7 @@ var ApplicationCore     = (function () {
     publicScope.checkIfModuleMethodExists = function(moduleId, method, shouldThrowError) {
         return privateScope.checkModule({
                 moduleId: moduleId,
-                method: method
+                methodName: method
             },
             shouldThrowError,
             'methodExists'
@@ -221,15 +228,15 @@ var ApplicationCore     = (function () {
                 exception = ['errors.system.moduleInstanceNotCreated', params];
                 break;
             case 'methodExists':
-                verificationResults = Boolean(typeof(module.instance[params.method]) === 'function');
+                verificationResults = Boolean(typeof(module.instance[params.methodName]) === 'function');
                 exception = ['errors.system.moduleMethodNotFound', params];
                 break;
             default:
                 break;
         }
 
-        if (!verificationResults && shouldThrowError) {
-            throw new extensions.Exception(exception[0], exception[1]);
+        if (!verificationResults) {
+            helpers.Logger.error(exception[0], exception[1], shouldThrowError, 1);
         }
 
         return verificationResults;
