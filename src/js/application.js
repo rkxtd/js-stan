@@ -24,13 +24,20 @@ var ApplicationCore     = (function () {
         helpers.Logger.log('application.started', {}, 3);
         var testModule = require('./modules/testModule/testModule');
         var testModule2 = require('./modules/testModule2/testModule');
+        var testModule3 = require('./modules/testModule3/testModule');
+        var testModule4 = require('./modules/testModule4/testModule');
 
         publicScope.registerModule('testModule', testModule);
         publicScope.registerModule('testModule2', testModule2);
+        publicScope.registerModule('testModule3', testModule3);
+        publicScope.registerModule('testModule4', testModule4);
+        publicScope.registerModule('broken-module', null);
         publicScope.startAllModules();
 
         publicScope.startApplication = function() {
             helpers.Logger.warning('Application is already up and running. You can\'t start it again');
+
+            return 0
         };
 
         return 0;
@@ -54,8 +61,6 @@ var ApplicationCore     = (function () {
      * @param creator
      */
     publicScope.registerModule = function(moduleId, creator) {
-        publicScope.checkIfCreatorFunction(moduleId, creator, true);
-
         privateScope.modules[moduleId] = {
             creator: creator,
             instance: null
@@ -70,10 +75,21 @@ var ApplicationCore     = (function () {
     publicScope.startModule = function(moduleId) {
         var module = privateScope.modules[moduleId];
 
-        publicScope.checkIfModuleExists(moduleId, true);
+        if (!publicScope.checkIfModuleExists(moduleId, true)) {
+            return 0;
+        }
+
+        if (!publicScope.checkIfCreatorFunction(moduleId, module.creator, true)) {
+            return 0;
+        }
+
         module.instance = module.creator(new extensions.Sandbox(helpers), helpers);
-        publicScope.checkIfModuleInstanceCreated(moduleId, true);
-        publicScope.checkIfModuleMethodExists(moduleId, 'init', true);
+        if(!publicScope.checkIfModuleInstanceCreated(moduleId, true)) {
+            return 0;
+        }
+        if (!publicScope.checkIfModuleMethodExists(moduleId, 'init', true)) {
+            return 0;
+        }
 
         privateScope.loadTranslations(moduleId);
         module.instance.init({
@@ -129,14 +145,13 @@ var ApplicationCore     = (function () {
      * @returns {boolean}
      */
     publicScope.checkIfCreatorFunction = function(moduleId, creator, shouldThrowError) {
-        if (typeof(creator) !== 'function') {
-            if (shouldThrowError) {
-                throw new extensions.Exception('errors.system.moduleCreatorNotFunction', moduleId);
-            }
-            return false;
-        }
-
-        return true;
+        return publicScope.checkModule({
+                moduleId: moduleId,
+                creator: creator
+            },
+            shouldThrowError,
+            'creatorIsFunction'
+        );
     };
 
     /**
@@ -147,7 +162,7 @@ var ApplicationCore     = (function () {
      * @return {boolean | Exception}
      */
     publicScope.checkIfModuleExists = function(moduleId, shouldThrowError) {
-        return privateScope.checkModule({
+        return publicScope.checkModule({
                 moduleId: moduleId
             },
             shouldThrowError,
@@ -163,7 +178,7 @@ var ApplicationCore     = (function () {
      * @return {boolean | Exception}
      */
     publicScope.checkIfModuleInstanceCreated = function(moduleId, shouldThrowError) {
-        return privateScope.checkModule({
+        return publicScope.checkModule({
                 moduleId: moduleId
             },
             shouldThrowError,
@@ -180,7 +195,7 @@ var ApplicationCore     = (function () {
      * @return {boolean | Exception}
      */
     publicScope.checkIfModuleMethodExists = function(moduleId, method, shouldThrowError) {
-        return privateScope.checkModule({
+        return publicScope.checkModule({
                 moduleId: moduleId,
                 methodName: method
             },
@@ -213,7 +228,7 @@ var ApplicationCore     = (function () {
      * @param type {string} Optional. key for verification
      * @returns {boolean} True if check succeed. Otherwise - False
      */
-    privateScope.checkModule = function(params, shouldThrowError, type) {
+    publicScope.checkModule = function(params, shouldThrowError, type) {
         var module = privateScope.modules[params.moduleId];
         var verificationResults;
         var exception;
@@ -231,7 +246,13 @@ var ApplicationCore     = (function () {
                 verificationResults = Boolean(typeof(module.instance[params.methodName]) === 'function');
                 exception = ['errors.system.moduleMethodNotFound', params];
                 break;
+            case 'creatorIsFunction':
+                verificationResults = Boolean(typeof(params.creator) === 'function');
+                exception = ['errors.system.moduleCreatorNotFunction', params];
+                break;
             default:
+                verificationResults = false;
+                exception = ['errors.system.checkTypeNotFound', type];
                 break;
         }
 

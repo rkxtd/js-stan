@@ -15,7 +15,14 @@ describe('Application', function () {
     });
 
     it('method should call non existed module', function () {
-        base.startModule('');
-        expect(base.startModule()).to.be.eq(0);
+        expect(base.startModule('non-exist')).to.be.eq(0);
+    });
+    it('method should call non existed check', function () {
+        expect(base.checkModule({
+                moduleId: 'test'
+            },
+            false,
+            'invalidCheck'
+        )).to.be.eq(false);
     });
 });
