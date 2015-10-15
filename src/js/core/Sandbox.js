@@ -37,7 +37,7 @@ var Sandbox = (function() {
 
         var listener = {
             fn: callBack,
-            scope: passedScope || {}
+            scope: passedScope || /* istanbul ignore next */ {}
         };
 
         if (Object.prototype.toString.call() === '[object Array]') {
@@ -56,8 +56,9 @@ var Sandbox = (function() {
      */
     scope.public.notify = function(eventName, data) {
         scope.helpers.Logger.log('sandbox.firedEvent', {eventName: eventName}, 2);
+        /* istanbul ignore next */
         if (!scope.types.hasOwnProperty(eventName)) {
-            return ;
+            return 0;
         }
 
         scope.types[eventName].forEach(function(listener) {

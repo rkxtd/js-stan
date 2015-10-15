@@ -2,10 +2,17 @@ module.exports = (function() {
     var sandbox,
         helpers,
         config;
-    var publicScope = {};
-    var privateScope = {};
+    var publicScope = {
+    };
+    var privateScope = {
+        id: 'TestModule1'
+    };
     var me = this;
     var translations = require('./i18n/*.js', {mode: 'expand'});
+
+    publicScope.getID = function() {
+        return privateScope.id;
+    };
 
     publicScope.init = function(localConfig) {
         config = localConfig;

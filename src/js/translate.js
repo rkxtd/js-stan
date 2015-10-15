@@ -3,8 +3,7 @@
 (function() {
     var app = this,
         config = require('../config/options'),
-        translations = require('../i18n/*', {mode: 'expand'}),
-        currentTranslation = require('../i18n/' + config.locale + '.js');
+        translations = require('../i18n/*', {mode: 'expand'});
 
     app.locale = app.locale || /* istanbul ignore next */ {};
     app.locale = {

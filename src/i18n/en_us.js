@@ -16,6 +16,9 @@
         'core.sandbox.providedScopeNotAnObject': 'Scope should be an object',
         'application.started': 'Application started',
         'application.stopped': 'Application stopped',
+        'application.modulesLoaded': 'Modules loaded',
+        'application.noModulesFoundToLoad': 'Current page do not have associated modules to load',
+        'application.navigateFromTo': 'Navigate from page [{from}] to [{to}]',
         'sandbox.subscribedForEvent': 'Subscribed for event: [{eventName}]',
         'sandbox.created': 'Sandbox created',
         'sandbox.firedEvent': 'Received event [{eventName}]. Notifying listeners'

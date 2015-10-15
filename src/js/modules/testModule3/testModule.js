@@ -3,9 +3,16 @@ module.exports = (function() {
         helpers;
 
     var publicScope = {};
+    var privateScope = {
+        id: 'TestModule3'
+    };
 
     publicScope.init = function() {
         helpers.Logger.log('Hi this is module 3');
+    };
+
+    publicScope.getID = function() {
+        return privateScope.id;
     };
 
     publicScope.destroy = function() {
@@ -16,6 +23,6 @@ module.exports = (function() {
         sandbox = localSandbox;
         helpers = localHelpers;
 
-        return null;
+        return publicScope;
     };
 }());

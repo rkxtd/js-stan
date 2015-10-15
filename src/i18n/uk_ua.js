@@ -16,6 +16,9 @@
         'core.sandbox.providedScopeNotAnObject': 'Scope повинен бути об\'єктом',
         'application.started': 'Застосування запущено',
         'application.stopped': 'Застосування зупинено',
+        'application.modulesLoaded': 'Модулі завантажено',
+        'application.noModulesFoundToLoad': 'Дана сторінка не має модулів для завантаження',
+        'application.navigateFromTo': 'Відбувся перехід сторінки з [{from}] до [{to}]',
         'sandbox.subscribedForEvent': 'Підписано на подію: [{eventName}]',
         'sandbox.created': 'Пісочницю створено',
         'sandbox.firedEvent': 'Трапилась подія [{eventName}]. Оновлюю підписників'
