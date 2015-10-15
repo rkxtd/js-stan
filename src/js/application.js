@@ -3,15 +3,17 @@ var ApplicationCore     = (function () {
         publicScope     = {},
         extensions      = {
             Sandbox     : require('./core/Sandbox'),
-            Translate   : require('./translate')
+            Translate   : require('./translate'),
+            Router      : require('./router')
         },
         helpers         = {
             Exception   : require('./core/exceptions/BaseException'),
             Logger      : require('./core/Logger'),
+            Navigation  : require('./core/Navigation'),
             Lodash      : require('lodash')
         },
         _ = helpers._;
-    var modules         = require('./modules/testModule/**/*Module.js', {mode: 'expand'});
+    var modules         = require('./modules/**/*', {mode: 'expand'});
 
     privateScope.modules = {};
     privateScope.applicationState = {
@@ -25,17 +27,7 @@ var ApplicationCore     = (function () {
     privateScope.startApplicationMaker = function() {
         privateScope.applicationState.running = true;
         helpers.Logger.log('application.started', {}, 2);
-        var testModule = require('./modules/testModule/testModule');
-        var testModule2 = require('./modules/testModule2/testModule');
-        var testModule3 = require('./modules/testModule3/testModule');
-        var testModule4 = require('./modules/testModule4/testModule');
-
-        publicScope.registerModule('testModule', testModule);
-        publicScope.registerModule('testModule2', testModule2);
-        publicScope.registerModule('testModule3', testModule3);
-        publicScope.registerModule('testModule4', testModule4);
-        publicScope.registerModule('broken-module', null);
-        publicScope.startAllModules();
+        privateScope.loadPageModules();
 
         publicScope.startApplication = function() {
             helpers.Logger.warning('errors.system.applicationIsAlreadyStarted');
@@ -46,12 +38,32 @@ var ApplicationCore     = (function () {
         return 0;
     };
 
+    /**
+     * Load modules that placed on current page
+     */
+    privateScope.loadPageModules = function() {
+        var modules = extensions.Router.get(helpers.Navigation.getCurrentPage());
+
+        if (modules instanceof Array) {
+            modules.forEach(function(module) {
+                publicScope.registerModule(module.id, module.creator);
+            });
+
+            helpers.Logger.log('application.modulesLoaded', {}, 7);
+        } else {
+            helpers.Logger.warning('application.noModulesFoundToLoad', {}, 3);
+        }
+
+        publicScope.startAllModules();
+    };
+
     publicScope.startApplication = privateScope.startApplicationMaker;
 
 
 
     /**
      * Stop Application
+     * Triggers stop messages to whole the application and terminates all modules
      * @returns {number}
      */
     publicScope.stopApplication = function() {
@@ -66,6 +78,71 @@ var ApplicationCore     = (function () {
         privateScope.applicationState.running = false;
 
         return 0;
+    };
+
+    /**
+     * Event happens on hash change.
+     * Method takes two hashes old one and new one, diffing modules betwean them,
+     * and decides which modules should be created, and which should be killed
+     */
+    publicScope.onNavigate = function() {
+        var oldPageObj = {},
+            newPageObj = {},
+            modulesToDestroy,
+            modulesToCreate;
+
+        oldPageObj.page = helpers.Navigation.getCurrentPage();
+        oldPageObj.modules = extensions.Router.get(oldPageObj.page);
+
+        helpers.Navigation.setUrl();
+        newPageObj.page = helpers.Navigation.getCurrentPage();
+        newPageObj.modules = extensions.Router.get(newPageObj.page);
+
+        modulesToDestroy = privateScope.moduleDiff(oldPageObj.modules, newPageObj.modules);
+        modulesToCreate = privateScope.moduleDiff(newPageObj.modules, oldPageObj.modules);
+
+        modulesToDestroy.onlyLeft.forEach(function(moduleID) {
+            publicScope.stopModule(moduleID);
+        });
+
+        modulesToCreate.onlyLeft.forEach(function(moduleID) {
+            var module = extensions.Router.getModuleById(newPageObj.page, moduleID);
+
+            publicScope.registerModule(module.id, module.creator);
+            publicScope.startModule(module.id);
+        });
+        helpers.Logger.log('application.navigateFromTo', {from: oldPageObj.page, to: newPageObj.page}, 3);
+    };
+
+    /**
+     * Detect differences between modules in array of modules
+     * @param left {array} array of modules
+     * @param right {array} array of modules
+     * @returns {{matching: Array, onlyLeft: Array}} - matching - array of modules found in both left and right
+     * onlyLeft - array with modules found only in left array
+     */
+    privateScope.moduleDiff = function(left, right) {
+        var results = {
+            matching    : [],
+            onlyLeft    : []
+        };
+
+        left.forEach(function(lmodule) {
+            var found = false;
+
+            right.forEach(function(rmodule) {
+                if (rmodule.id === lmodule.id) {
+                    found = true;
+                    results.matching.push(lmodule.id);
+                }
+            });
+
+            if (!found) {
+                results.onlyLeft.push(lmodule.id);
+            }
+        });
+
+        return results;
     };
 
     /**
@@ -101,14 +178,17 @@ var ApplicationCore     = (function () {
         }
 
         module.instance = module.creator(new extensions.Sandbox(helpers), helpers);
+
         if(!publicScope.checkIfModuleInstanceCreated(moduleId, true)) {
             return 0;
         }
+
         if (!publicScope.checkIfModuleMethodExists(moduleId, 'init', true)) {
             return 0;
         }
 
         privateScope.loadTranslations(moduleId);
+
         module.instance.init({
             id: moduleId
         });

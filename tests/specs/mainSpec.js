@@ -6,6 +6,10 @@ describe('Application', function () {
         expect(base).to.be.defined;
     });
 
+    it('method should stop application before running', function () {
+        expect(base.stopApplication()).to.be.eq(0);
+    });
+
     it('should run application', function () {
         expect(base.startApplication()).to.be.eq(0);
     });
@@ -21,6 +25,21 @@ describe('Application', function () {
             'invalidCheck'
         )).to.be.eq(false);
     });
+
+    it('method should load empty page without modules', function () {
+        window.location.href='#default';
+        base.onNavigate();
+
+        expect(false).to.be.eq(false);
+    });
+
+    it('method should load empty page with modules', function () {
+        window.location.href='#index';
+        base.onNavigate();
+
+        expect(false).to.be.eq(false);
+    });
+
 
     it('method should stop application', function () {
         expect(base.stopApplication()).to.be.eq(0);

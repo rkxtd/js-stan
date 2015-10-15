@@ -5,5 +5,5 @@ var base = require('./application'),
     i18n = require('./translate');
 
 window.app.runtime = base;
+window.addEventListener('hashchange', window.app.runtime.onNavigate, false);
 window.app.runtime.startApplication();
-window.app.runtime.stopApplication();
